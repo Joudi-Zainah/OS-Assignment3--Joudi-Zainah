@@ -63,43 +63,75 @@ class SharedStats {
 
     // TODO Feature 2: declare the lock(s) protecting the three shared variables above here.
     // Think about it: ONE lock for the three variables, or ONE lock PER variable? (you must justify it in MY_WORK.md)
+    private static final ReentrantLock statsLock = new ReentrantLock(); //***
 
     public static void incrementContextSwitch() {
         // TODO Feature 2: protect this critical section
+
+        statsLock.lock(); //to lock the critical section /////***
+        try{
         int tmp = contextSwitchCount;       // 1) read
         RaceWindow.pause();                 //    <- another thread can read the SAME value here
         contextSwitchCount = tmp + 1;       // 2) write  (one increment is lost if someone else did the same)
-    }
+        } finally {
+         statsLock.unlock(); //to unlock the critical section /////***
+        }}
 
     public static void incrementCompletedProcess() {
         // TODO Feature 2: protect this critical section
+
+        statsLock.lock();  //to lock the critical section /////***
+        try {
         int tmp = completedProcessCount;
         RaceWindow.pause();
         completedProcessCount = tmp + 1;
-    }
+        } finally {
+            statsLock.unlock(); //to unlock the critical section /////***
+        }}
 
     public static void addServiceTime(int ms) {
         // TODO Feature 2: protect this critical section
+
+        statsLock.lock();  //to lock the critical section /////***
+        try {
         long tmp = totalServiceTime;
         RaceWindow.pause();
         totalServiceTime = tmp + ms;
-    }
+        } finally {
+            statsLock.unlock(); //to unlock the critical section /////***
+        }}
 
     // Readers must also be protected (a read in the middle of an update is not safe either)
     public static int getCompletedProcessCount() {
         // TODO Feature 2: protect this read
+
+        statsLock.lock();  //to lock the critical section /////***
+        try {
         return completedProcessCount;
-    }
+        } finally {
+     statsLock.unlock(); //to unlock the critical section /////***
+        }}
 
     public static int getContextSwitchCount() {
         // TODO Feature 2: protect this read
+
+        statsLock.lock();  //to lock the critical section /////***
+        try {
         return contextSwitchCount;
-    }
+        } finally {
+            statsLock.unlock(); //to unlock the critical section /////***
+        }}
 
     public static long getTotalServiceTime() {
         // TODO Feature 2: protect this read
+
+        statsLock.lock();  //to lock the critical section /////***
+        try {
         return totalServiceTime;
-    }
+         } finally {
+                statsLock.unlock(); //to unlock the critical section /////***
+             }
+}
 }
 
 // ⚠️ THE READY QUEUE: shared by ALL the CPU threads ⚠️
