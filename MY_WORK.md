@@ -132,68 +132,89 @@
 
 ## Your Development Log
 
-### Entry 1 - [Date and Time]
-**What I did**:
+### Entry 1 - [November 6, 2026, 2:00 AM]
+**What I did**: Set up the repositiry, changed my student ID, and ran the starter code.
 
-**Details**:
+**Details**: 
+-Forked the repository and renamed it.
+-Updated line 304 with my student ID (446052698).
+-Ran the starter code and saved the output. It failed completely: CPU-1 crashed with a ConcurrentModificationException, CPU-3 crashed because it grabbed P1 at the same time as CPU-2, and the watchdog stopped the program after 23 seconds.
+-Made my first commit (Set my student ID).
 
-**Challenges**:
+**Challenges**: I was confused at first why P2 and P3 disappeared with 0ms and why two CPUs managed to pick P1 at the exact same time.
 
-**Solution**:
+**Solution**: Looked at ReadyQueue and realized that without a lock, multiple CPUs were modifying the LinkedList concurrently during RaceWindow.pause().
 
-**Time spent**:
-
----
-
-### Entry 2 - [Date and Time]
-**What I did**:
-
-**Details**:
-
-**Challenges**:
-
-**Solution**:
-
-**Time spent**:
+**Time spent**: 40 minutes.
 
 ---
 
-### Entry 3 - [Date and Time]
-**What I did**:
+### Entry 2 - [November 6, 2026, 3:39 AM]
+**What I did**:Implemented Feature 1 to lock the ReadyQueue.
 
 **Details**:
+-Declared a ReentrantLock named queueLock in the ReadyQueue class.
+-Protected all methods (add, poll, processOf, and snapshot) using lock() and try-finally blocks to ensure mutual exclusion.
+-Tested the code, and all 16 processes finished successfully without any crashes.
+-Committed and pushed (Feature 1: Protected the ready queue with a ReentrantLock).
 
-**Challenges**:
+**Challenges**:Making sure I didn't miss any method that touches the shared queue list or map.
 
-**Solution**:
+**Solution**:Checked every single method in ReadyQueue and wrapped it securely, making sure unlock() is always inside a finally block so locks don't get stuck.
 
-**Time spent**:
+**Time spent**:1 hour.
 
 ---
 
-### Entry 4 - [Date and Time]
-**What I did**:
+### Entry 3 - [November 9, 2026, 6:38 PM]
+**What I did**:Implemented Feature 2 to protect the shared statistics.
 
 **Details**:
+-Added a ReentrantLock named statsLock inside SharedStats.
+-Locked all update methods (contextSwitchCount, completedProcessCount, totalServiceTime) and also the getter methods to prevent reading messy data.
+-Ran the simulation and saw context switches and total service time pass with green checks.
+-Committed and pushed (Feature 2: Added locks to the shared statistics counters).
 
-**Challenges**:
+**Challenges**:At first I only thought about locking the increment functions, but I realized getters also need locks so threads don't read data mid-update.
 
-**Solution**:
+**Solution**:to every single method in SharedStats with try-finally blocks.
 
-**Time spent**:
+**Time spent**:1 hour.
 
 ---
 
-### Entry 5 - [Date and Time]
-**What I did**:
+### Entry 4 - [November 15, 2026, 11:53 PM]
+**What I did**:mplemented Feature 3 with a counting semaphore and clean shutdown, then verified the final output.
 
 **Details**:
+-Declared a counting semaphore (queueSemaphore) initialized to 0 in ReadyQueue.
+-Replaced the busy-waiting polling loop in CpuWorker with queueSemaphore.acquire(), and called queueSemaphore.release() whenever a process is added.
+-Implemented the dual clean shutdown logic using SharedStats.getCompletedProcessCount() >= SharedStats.totalProcesses along with release(SharedStats.totalCPUs) to safely wake up waiting CPUs and prevent deadlocks.
+-Ran the simulation 5 consecutive times and confirmed that all verification checks passed with green checks and busy-waiting polls equaled 0.
+-Committed and pushed (Feature 3: Replaced busy waiting with a counting semaphore).
 
-**Challenges**:
+**Challenges**:Figuring out the exact placement for the clean shutdown checks and making sure the CPUs wouldn't hang or get stuck waiting forever on the semaphore after the last process finished.
 
-**Solution**:
+**Solution**:Added the shutdown checks both right after acquire() and after a process quantum finishes, ensuring the last CPU releases all waiting workers so they can terminate cleanly.
 
-**Time spent**:
+**Time spent**:1 hour and 30 minutes
+
+---
+
+### Entry 5 - [November 16, 2026, 7:34 PM]
+**What I did**:Checked and reviewed my previous work, organized the development log entries, and reviewed MY_WORK.md.
+
+**Details**:
+-Went through all my previous code implementations and git history to make sure everything was fully verified and correct.
+-Looked over MY_WORK.md and structured the final development log entries based on my actual work sessions.
+-Checked all requirements and prepared for the next sections.
+-Committed and pushed the updated entries.
+
+**Challenges**:Making sure all the log entries and details matched my actual work timeline accurately.
+
+**Solution**:Checked my terminal outputs and commit history step-by-step to align everything correctly.
+
+**Time spent**:45 minutes.
 
 ---
 
@@ -214,13 +235,13 @@
 
 > 💡 **TIP:** Fill this in **last**, after all entries are written.
 
-**Total time spent on assignment**: [X hours]
+**Total time spent on assignment**: [5 hours and 25 minutes]
 
-**Most challenging part**:
+**Most challenging part**:Understanding why the starter code crashed with ConcurrentModificationException and figuring out the correct clean shutdown logic for the semaphore without causing deadlocks.
 
-**Most interesting learning**:
+**Most interesting learning**:Seeing how a simple ReentrantLock and counting semaphore completely eliminate busy-waiting polls (0 polls) and keep the CPU scheduler running smoothly and consistently.
 
-**What I would do differently next time**:
+**What I would do differently next time**:Experiment with different synchronization approaches and test how different lock designs behave before deciding on the final implementation.
 
 ---
 
